@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from 'next/navigation';
 import { 
   Home, 
@@ -21,6 +22,33 @@ import toast from 'react-hot-toast';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    if (nextTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   // Public paths that do not show sidebar or header
   const isPublicPage = pathname === '/' || pathname === '/login' || pathname === '/register';
@@ -52,7 +80,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <AuthGuard>
-      <div className="min-h-screen flex w-full bg-[#f8fafc] text-gray-900 font-sans overflow-hidden">
+      <div className="min-h-screen flex w-full bg-background text-foreground font-sans overflow-hidden transition-colors duration-200">
         
         {/* NARROW ICON-ONLY SIDEBAR (Matches WhatsACP reference) */}
         <aside className="w-20 bg-[#0c101b] flex flex-col items-center fixed left-0 top-0 h-full z-20 shadow-xl py-6 shrink-0 border-r border-slate-900">
@@ -151,24 +179,45 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         </aside>
 
         {/* MAIN BODY AREA */}
-        <main className="flex-1 ml-20 flex flex-col h-screen overflow-hidden bg-slate-50">
+        <main className="flex-1 ml-20 flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
           
           {/* TOP BREADCRUMB BAR (Matches inbox_light.png top layout) */}
-          <header className="h-14 bg-white border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between px-6 shadow-sm shrink-0">
+          <header className="h-14 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 sticky top-0 z-10 flex items-center justify-between px-6 shadow-sm shrink-0 transition-colors duration-200">
             {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-slate-400 font-semibold text-xs">
-              <Home className="w-4 h-4 text-slate-400 hover:text-slate-600 cursor-pointer" />
+            <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 font-semibold text-xs">
+              <Home className="w-4 h-4 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors" />
               <ChevronRight className="w-3.5 h-3.5" />
-              <span className="hover:text-slate-600 cursor-pointer">{getPageName()}</span>
+              <span className="hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer transition-colors">{getPageName()}</span>
             </div>
             
-            {/* Profile Initials & Settings */}
-            <div className="flex items-center gap-4 text-slate-500">
-              <button className="hover:text-slate-800"><Settings className="w-4.5 h-4.5" /></button>
+            {/* Profile Initials & Settings & Dark Mode Toggle */}
+            <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
+              
+              {/* MuiIconButton-style Dark/Light Theme Button */}
+              <button 
+                onClick={toggleTheme}
+                className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1hbkoj9"
+                tabIndex={0}
+                type="button" 
+                aria-label={theme === 'dark' ? "Switch to Light" : "Switch to Dark"}
+              >
+                <svg className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vt8pii" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                  {theme === 'dark' ? (
+                    // Sun icon
+                    <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41zm-12.37 12.37c-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41z"/>
+                  ) : (
+                    // Moon icon (requested Mui-style Moon icon path)
+                    <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+                  )}
+                </svg>
+                <span className="MuiTouchRipple-root css-4mb1j7"></span>
+              </button>
+
+              <button className="hover:text-slate-800 dark:hover:text-slate-100 p-1 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-full transition-all cursor-pointer"><Settings className="w-4.5 h-4.5" /></button>
               <span className="bg-gradient-to-r from-indigo-500 to-cyan-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm select-none">
                 Pro
               </span>
-              <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-inner select-none cursor-pointer">
+              <div className="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-xs shadow-inner select-none cursor-pointer">
                 AC
               </div>
             </div>

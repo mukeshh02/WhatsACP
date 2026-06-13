@@ -27,7 +27,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${roboto.variable} ${outfit.variable} antialiased`}>
-      <body className="bg-[#f8fafc] text-gray-900 font-sans min-h-screen">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `
+          }}
+        />
+      </head>
+      <body className="bg-background text-foreground font-sans min-h-screen transition-colors duration-200">
         <Toaster position="top-center" />
         <LayoutWrapper>
           {children}
