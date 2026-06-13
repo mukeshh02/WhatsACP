@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.variable} ${outfit.variable} antialiased`}>
+    <html lang="en" className={`${roboto.variable} ${outfit.variable} antialiased`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
