@@ -8,6 +8,7 @@ export default async function Page() {
 
   let projects = []
   let error = null
+  let isOffline = false
 
   try {
     // Fetch all projects from Supabase
@@ -22,18 +23,52 @@ export default async function Page() {
   }
 
   if (error) {
-    console.error("Supabase fetch error:", error)
-    return (
-      <div className="p-10 text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/25 rounded-lg m-10 border border-red-200 dark:border-red-900/50 font-sans shadow-sm">
-        <h1 className="text-2xl font-bold mb-2">Database Connection Error</h1>
-        <p>Could not load projects from Supabase. Make sure your SUPABASE_URL and KEY are correct and the 'projects' table exists.</p>
-        <pre className="mt-4 bg-white dark:bg-slate-900 p-4 rounded text-sm overflow-auto text-gray-800 dark:text-slate-300 border border-red-100 dark:border-red-950">{JSON.stringify(error, null, 2)}</pre>
-      </div>
-    )
+    console.error("Supabase fetch error, switching to mock database fallback:", error)
+    isOffline = true
+    
+    // Premium mock camera production groups for local sandbox demo
+    projects = [
+      {
+        id: 1,
+        group_name: "Akash & Riya Pre-Wedding Shoot",
+        whatsapp_group_id: "1203632948293029@g.us",
+        event_month: "15 Oct 2026",
+        status: "Pre-Prod"
+      },
+      {
+        id: 2,
+        group_name: "Sharma Wedding Highlight",
+        whatsapp_group_id: "1203632948293030@g.us",
+        event_month: "28 Nov 2026",
+        status: "Editing"
+      },
+      {
+        id: 3,
+        group_name: "Verma Sangeet Production",
+        whatsapp_group_id: "1203632948293031@g.us",
+        event_month: "12 Dec 2026",
+        status: "Completed"
+      },
+      {
+        id: 4,
+        group_name: "Kapoor Reception Teaser",
+        whatsapp_group_id: "1203632948293032@g.us",
+        event_month: "05 Jan 2027",
+        status: "Revisions"
+      }
+    ]
   }
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in fade-in duration-500 space-y-6">
+      {isOffline && (
+        <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl flex items-center gap-3 text-amber-800 dark:text-amber-350 font-sans shadow-sm text-xs md:text-sm transition-colors duration-200">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+          <p className="font-semibold">
+            Local Fallback Mode: Running with local sandbox camera production groups. Check your <code className="bg-amber-150 dark:bg-amber-900/40 px-1.5 py-0.5 rounded font-mono text-xs border border-amber-250/30 dark:border-amber-900/30">.env.local</code> credentials to sync with your live Supabase database.
+          </p>
+        </div>
+      )}
       <KanbanBoard initialProjects={projects} />
     </div>
   )
