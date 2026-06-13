@@ -91,13 +91,13 @@ body {
   flex: 0 0 auto;
   border-radius: 50%;
   overflow: hidden;
-  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, color 150ms ease;
   padding: 8px;
-  color: #475569; /* slate-600 */
+  color: #4f46e5; /* Premium Indigo for Moon icon */
 }
 
 .dark .MuiIconButton-root {
-  color: #94a3b8; /* slate-400 */
+  color: #fbbf24; /* Premium Golden Amber for Sun icon */
 }
 
 .MuiIconButton-root:hover {
