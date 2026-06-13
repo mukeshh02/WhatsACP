@@ -23,7 +23,7 @@ export default async function Page() {
   }
 
   if (error) {
-    console.error("Supabase fetch error, switching to mock database fallback:", error)
+    console.warn("Supabase fetch error, switching to mock database fallback:", error)
     isOffline = true
     
     // Premium mock camera production groups for local sandbox demo

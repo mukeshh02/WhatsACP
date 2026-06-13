@@ -14,7 +14,7 @@ export default async function Home() {
       count = fetchedCount;
     }
   } catch (err) {
-    console.error("Failed to fetch projects count from Supabase:", err);
+    console.warn("Failed to fetch projects count from Supabase:", err);
   }
 
   return (
