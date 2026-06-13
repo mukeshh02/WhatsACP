@@ -17,6 +17,7 @@ import AuthGuard from './AuthGuard';
 import { supabase } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -176,7 +177,18 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
           
           {/* Main child viewport */}
           <div className={`flex-1 flex flex-col overflow-hidden ${pathname === '/chat' ? 'p-0' : 'p-8 overflow-y-auto'}`}>
-             {children}
+             <AnimatePresence mode="wait">
+               <motion.div
+                 key={pathname}
+                 initial={{ opacity: 0, y: 8 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 exit={{ opacity: 0, y: -8 }}
+                 transition={{ duration: 0.18, ease: "easeInOut" }}
+                 className="flex-1 flex flex-col overflow-hidden h-full w-full"
+               >
+                 {children}
+               </motion.div>
+             </AnimatePresence>
           </div>
         </main>
       </div>

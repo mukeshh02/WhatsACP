@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { supabase } from "@/utils/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, 
   Send, 
@@ -971,7 +972,7 @@ export default function ChatPage() {
           <div className="flex items-center gap-3 text-slate-400">
             <button className="hover:text-slate-600"><MoreVertical className="w-5 h-5" /></button>
             <div className="flex items-center gap-1">
-              <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-red-500'}`} />
+              <span className={`w-2 h-2 rounded-full transition-all duration-500 ${connected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] animate-pulse' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.7)] animate-pulse'}`} />
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{connected ? 'Live' : 'Off'}</span>
             </div>
           </div>
@@ -1157,56 +1158,64 @@ export default function ChatPage() {
                       </button>
 
                       {/* Month Picker Dropdown Grid */}
-                      {monthPickerOpen && (
-                        <>
-                          <div className="fixed inset-0 z-20 cursor-default" onClick={() => setMonthPickerOpen(false)} />
-                          <div className="absolute top-9 left-0 right-0 bg-[#1a1d24] border border-slate-800 text-slate-200 rounded-xl shadow-2xl p-3 z-30 animate-in zoom-in-95 duration-150">
-                            {/* Triangle Caret Pointer */}
-                            <div className="absolute -top-1.5 left-[116px] w-3 h-3 bg-[#1a1d24] rotate-45 border-t border-l border-slate-800"></div>
-                            
-                            {/* Header */}
-                            <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b border-slate-800 text-xs font-bold text-slate-400 select-none px-1 relative z-10">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedFilterYear(prev => prev - 1)}
-                                className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
-                              >
-                                &laquo;
-                              </button>
-                              <span className="text-slate-200 font-bold text-xs">{selectedFilterYear}</span>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedFilterYear(prev => prev + 1)}
-                                className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
-                              >
-                                &raquo;
-                              </button>
-                            </div>
-                            
-                            {/* Grid */}
-                            <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-semibold relative z-10">
-                              {monthsShort.map((m, idx) => (
+                      <AnimatePresence>
+                        {monthPickerOpen && (
+                          <>
+                            <div className="fixed inset-0 z-20 cursor-default" onClick={() => setMonthPickerOpen(false)} />
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                              transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                              className="absolute top-9 left-0 right-0 bg-[#1a1d24] border border-slate-800 text-slate-200 rounded-xl shadow-2xl p-3 z-30 origin-top"
+                            >
+                              {/* Triangle Caret Pointer */}
+                              <div className="absolute -top-1.5 left-[116px] w-3 h-3 bg-[#1a1d24] rotate-45 border-t border-l border-slate-800"></div>
+                              
+                              {/* Header */}
+                              <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b border-slate-800 text-xs font-bold text-slate-400 select-none px-1 relative z-10">
                                 <button
                                   type="button"
-                                  key={m}
-                                  onClick={() => {
-                                    setSelectedFilterMonth(idx);
-                                    setMonthlyYearlyFilterApplied(true);
-                                    setMonthPickerOpen(false);
-                                  }}
-                                  className={`py-2 rounded-lg transition-colors cursor-pointer text-center ${
-                                    selectedFilterMonth === idx 
-                                      ? 'bg-[#2b303c] text-white font-bold' 
-                                      : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
-                                  }`}
+                                  onClick={() => setSelectedFilterYear(prev => prev - 1)}
+                                  className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
                                 >
-                                  {m}
+                                  &laquo;
                                 </button>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      )}
+                                <span className="text-slate-200 font-bold text-xs">{selectedFilterYear}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedFilterYear(prev => prev + 1)}
+                                  className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
+                                >
+                                  &raquo;
+                                </button>
+                              </div>
+                              
+                              {/* Grid */}
+                              <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-semibold relative z-10">
+                                {monthsShort.map((m, idx) => (
+                                  <button
+                                    type="button"
+                                    key={m}
+                                    onClick={() => {
+                                      setSelectedFilterMonth(idx);
+                                      setMonthlyYearlyFilterApplied(true);
+                                      setMonthPickerOpen(false);
+                                    }}
+                                    className={`py-2 rounded-lg transition-colors cursor-pointer text-center ${
+                                      selectedFilterMonth === idx 
+                                        ? 'bg-[#2b303c] text-white font-bold' 
+                                        : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                                    }`}
+                                  >
+                                    {m}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
                     </div>
                   );
                 })()}
@@ -1282,62 +1291,70 @@ export default function ChatPage() {
                     </button>
 
                     {/* Year Picker Dropdown Grid */}
-                    {yearPickerOpen && (
-                      <>
-                        <div className="fixed inset-0 z-20 cursor-default" onClick={() => setYearPickerOpen(false)} />
-                        <div className="absolute top-9 left-0 right-0 bg-[#1a1d24] border border-slate-800 text-slate-200 rounded-xl shadow-2xl p-3 z-30 animate-in zoom-in-95 duration-150">
-                          {/* Triangle Caret Pointer */}
-                          <div className="absolute -top-1.5 left-[116px] w-3 h-3 bg-[#1a1d24] rotate-45 border-t border-l border-slate-800"></div>
-                          
-                          {/* Header */}
-                          <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b border-slate-800 text-xs font-bold text-slate-400 select-none px-1 relative z-10">
-                            <button
-                              type="button"
-                              onClick={() => setDecadeStartYear(prev => prev - 10)}
-                              className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
-                            >
-                              &laquo;
-                            </button>
-                            <span className="text-slate-200 font-bold text-xs">{decadeStartYear} - {decadeStartYear + 9}</span>
-                            <button
-                              type="button"
-                              onClick={() => setDecadeStartYear(prev => prev + 10)}
-                              className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
-                            >
-                              &raquo;
-                            </button>
-                          </div>
-                          
-                          {/* Grid */}
-                          <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-semibold relative z-10">
-                            {Array.from({ length: 12 }, (_, i) => decadeStartYear - 1 + i).map(year => {
-                              const isOut = year < decadeStartYear || year > (decadeStartYear + 9);
-                              return (
-                                <button
-                                  type="button"
-                                  key={year}
-                                  onClick={() => {
-                                    setSelectedFilterYear(year);
-                                    setDecadeStartYear(Math.floor(year / 10) * 10);
-                                    setMonthlyYearlyFilterApplied(true);
-                                    setYearPickerOpen(false);
-                                  }}
-                                  className={`py-2 rounded-lg transition-colors cursor-pointer text-center ${
-                                    selectedFilterYear === year 
-                                      ? 'bg-[#2b303c] text-white font-bold' 
-                                      : isOut
-                                        ? 'text-slate-600 hover:bg-slate-800/40 hover:text-slate-500 font-medium'
-                                        : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
-                                  }`}
-                                >
-                                  {year}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </>
-                    )}
+                    <AnimatePresence>
+                      {yearPickerOpen && (
+                        <>
+                          <div className="fixed inset-0 z-20 cursor-default" onClick={() => setYearPickerOpen(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                            transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                            className="absolute top-9 left-0 right-0 bg-[#1a1d24] border border-slate-800 text-slate-200 rounded-xl shadow-2xl p-3 z-30 origin-top"
+                          >
+                            {/* Triangle Caret Pointer */}
+                            <div className="absolute -top-1.5 left-[116px] w-3 h-3 bg-[#1a1d24] rotate-45 border-t border-l border-slate-800"></div>
+                            
+                            {/* Header */}
+                            <div className="flex justify-between items-center pb-2.5 mb-2.5 border-b border-slate-800 text-xs font-bold text-slate-400 select-none px-1 relative z-10">
+                              <button
+                                type="button"
+                                onClick={() => setDecadeStartYear(prev => prev - 10)}
+                                className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
+                              >
+                                &laquo;
+                              </button>
+                              <span className="text-slate-200 font-bold text-xs">{decadeStartYear} - {decadeStartYear + 9}</span>
+                              <button
+                                type="button"
+                                onClick={() => setDecadeStartYear(prev => prev + 10)}
+                                className="p-1 hover:text-slate-100 transition cursor-pointer text-sm font-bold"
+                              >
+                                &raquo;
+                              </button>
+                            </div>
+                            
+                            {/* Grid */}
+                            <div className="grid grid-cols-4 gap-1.5 text-center text-xs font-semibold relative z-10">
+                              {Array.from({ length: 12 }, (_, i) => decadeStartYear - 1 + i).map(year => {
+                                const isOut = year < decadeStartYear || year > (decadeStartYear + 9);
+                                return (
+                                  <button
+                                    type="button"
+                                    key={year}
+                                    onClick={() => {
+                                      setSelectedFilterYear(year);
+                                      setDecadeStartYear(Math.floor(year / 10) * 10);
+                                      setMonthlyYearlyFilterApplied(true);
+                                      setYearPickerOpen(false);
+                                    }}
+                                    className={`py-2 rounded-lg transition-colors cursor-pointer text-center ${
+                                      selectedFilterYear === year 
+                                        ? 'bg-[#2b303c] text-white font-bold' 
+                                        : isOut
+                                          ? 'text-slate-600 hover:bg-slate-800/40 hover:text-slate-500 font-medium'
+                                          : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                                    }`}
+                                  >
+                                    {year}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
 
@@ -1431,77 +1448,84 @@ export default function ChatPage() {
               <p className="text-xs font-semibold">No active inbox items</p>
             </div>
           ) : (
-            sortedProjects.map((project) => {
-              const jid = project.whatsapp_group_id;
-              const isActive = activeProject?.whatsapp_group_id === jid;
-              const unread = unreadCounts[jid] || 0;
-              const lastMsg = lastMessages[jid] || "";
+            <AnimatePresence mode="popLayout">
+              {sortedProjects.map((project) => {
+                const jid = project.whatsapp_group_id;
+                const isActive = activeProject?.whatsapp_group_id === jid;
+                const unread = unreadCounts[jid] || 0;
+                const lastMsg = lastMessages[jid] || "";
 
-              return (
-                <button
-                  key={project.id}
-                  onClick={() => setActiveProject(project)}
-                  className={`w-full p-4 flex gap-3 text-left transition-all relative ${
-                    isActive 
-                      ? 'bg-slate-50/70 border-l-4 border-emerald-600' 
-                      : 'hover:bg-slate-50/40 border-l-4 border-transparent'
-                  }`}
-                >
-                  {/* Circle initial avatar / DP */}
-                  {profilePics[jid] && profilePics[jid] !== 'no_pic' ? (
-                    <img 
-                      src={profilePics[jid]} 
-                      alt={project.group_name} 
-                      className="w-10 h-10 rounded-full object-cover shrink-0"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 shrink-0 text-sm">
-                      {project.group_name.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
+                return (
+                  <motion.button
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                    key={project.id}
+                    onClick={() => setActiveProject(project)}
+                    className={`w-full p-4 flex gap-3 text-left transition-all relative ${
+                      isActive 
+                        ? 'bg-slate-50/70 border-l-4 border-emerald-600' 
+                        : 'hover:bg-slate-50/40 border-l-4 border-transparent'
+                    }`}
+                  >
+                    {/* Circle initial avatar / DP */}
+                    {profilePics[jid] && profilePics[jid] !== 'no_pic' ? (
+                      <img 
+                        src={profilePics[jid]} 
+                        alt={project.group_name} 
+                        className="w-10 h-10 rounded-full object-cover shrink-0"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 shrink-0 text-sm">
+                        {project.group_name.slice(0, 1).toUpperCase()}
+                      </div>
+                    )}
 
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex justify-between items-baseline gap-2">
-                      <h4 className="font-semibold text-slate-900 text-xs truncate">{project.group_name}</h4>
-                      <span className="text-[9px] font-semibold text-slate-400 shrink-0">
-                        {project.event_month !== 'Unknown' && project.event_month ? project.event_month : 'General'}
-                      </span>
-                    </div>
-
-                    <p className="text-slate-500 text-[11px] truncate leading-tight flex items-center gap-1">
-                      {typingStatus[jid] ? (
-                        <span className="text-emerald-600 font-semibold animate-pulse">typing...</span>
-                      ) : (
-                        <>
-                          {isActive ? <ArrowUpRight className="w-3 h-3 text-emerald-500 shrink-0" /> : <ArrowDownLeft className="w-3 h-3 text-slate-400 shrink-0" />}
-                          {lastMsg || "Click to open conversation..."}
-                        </>
-                      )}
-                    </p>
-
-                    <div className="flex justify-between items-center pt-1 w-full">
-                      {/* Channel Badge (whatsApp) */}
-                      <span className={`text-[9px] font-bold text-white px-1.5 py-0.5 rounded ${project.whatsapp_group_id.endsWith('@g.us') ? 'bg-indigo-600' : 'bg-emerald-500'}`}>
-                        {project.whatsapp_group_id.endsWith('@g.us') ? 'Group Chat' : 'Direct Chat'}
-                      </span>
-                      
-                      {/* Status Badge */}
-                      <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(project.status)}`}>
-                        {project.status}
-                      </span>
-
-                      {/* Unread badge */}
-                      {unread > 0 && (
-                        <span className="bg-emerald-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shrink-0">
-                          {unread}
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex justify-between items-baseline gap-2">
+                        <h4 className="font-semibold text-slate-900 text-xs truncate">{project.group_name}</h4>
+                        <span className="text-[9px] font-semibold text-slate-400 shrink-0">
+                          {project.event_month !== 'Unknown' && project.event_month ? project.event_month : 'General'}
                         </span>
-                      )}
+                      </div>
+
+                      <p className="text-slate-500 text-[11px] truncate leading-tight flex items-center gap-1">
+                        {typingStatus[jid] ? (
+                          <span className="text-emerald-600 font-semibold animate-pulse">typing...</span>
+                        ) : (
+                          <>
+                            {isActive ? <ArrowUpRight className="w-3 h-3 text-emerald-500 shrink-0" /> : <ArrowDownLeft className="w-3 h-3 text-slate-400 shrink-0" />}
+                            {lastMsg || "Click to open conversation..."}
+                          </>
+                        )}
+                      </p>
+
+                      <div className="flex justify-between items-center pt-1 w-full">
+                        {/* Channel Badge (whatsApp) */}
+                        <span className={`text-[9px] font-bold text-white px-1.5 py-0.5 rounded ${project.whatsapp_group_id.endsWith('@g.us') ? 'bg-indigo-600' : 'bg-emerald-500'}`}>
+                          {project.whatsapp_group_id.endsWith('@g.us') ? 'Group Chat' : 'Direct Chat'}
+                        </span>
+                        
+                        {/* Status Badge */}
+                        <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border ${getStatusColor(project.status)}`}>
+                          {project.status}
+                        </span>
+
+                        {/* Unread badge */}
+                        {unread > 0 && (
+                          <span className="bg-emerald-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shrink-0">
+                            {unread}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              );
-            })
+                  </motion.button>
+                );
+              })}
+            </AnimatePresence>
           )}
         </div>
       </div>
@@ -1634,13 +1658,19 @@ export default function ChatPage() {
                   );
                 }
                 
-                return filtered.map((msg, index) => {
-                  const isMe = msg.fromMe;
-                  return (
-                    <div 
-                      key={msg.id || index}
-                      className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300 group`}
-                    >
+                return (
+                  <AnimatePresence mode="popLayout">
+                    {filtered.map((msg, index) => {
+                      const isMe = msg.fromMe;
+                      return (
+                        <motion.div 
+                          key={msg.id || index}
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                          className={`flex ${isMe ? 'justify-end' : 'justify-start'} group w-full`}
+                        >
                       <div className={`max-w-[65%] rounded-xl px-3.5 py-2 shadow-sm relative border ${
                         isMe 
                           ? 'bg-[#d9fdd3] text-[#111b21] border-[#c0ebd0] rounded-tr-none' 
@@ -1778,10 +1808,12 @@ export default function ChatPage() {
                           </div>
                         </div>
 
-                      </div>
-                    </div>
-                  );
-                });
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                );
               })()}
               <div ref={messagesEndRef} />
             </div>
@@ -1893,48 +1925,59 @@ export default function ChatPage() {
                     <Sparkles className="w-4 h-4 text-indigo-500 hover:scale-105 transition-transform" />
                   )}
                 </button>
-                {aiPopoverOpen && (
-                  <div className="absolute bottom-12 right-0 bg-white border border-slate-200/80 p-3 rounded-2xl shadow-xl z-20 w-56 animate-in zoom-in-95 duration-150 select-none space-y-2">
-                    <div className="flex items-center gap-1.5 px-1 pb-1 border-b border-slate-100">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                      <h5 className="text-[10px] font-black text-slate-700 uppercase tracking-wider">AI Tone Rewriter</h5>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      <button
-                        type="button"
-                        onClick={() => handleAiEnhance('professional')}
-                        className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
+                <AnimatePresence>
+                  {aiPopoverOpen && (
+                    <>
+                      <div className="fixed inset-0 z-20 cursor-default" onClick={() => setAiPopoverOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                        transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                        className="absolute bottom-12 right-0 bg-white border border-slate-200/80 p-3 rounded-2xl shadow-xl z-30 w-56 origin-bottom select-none space-y-2"
                       >
-                        <span>✨ Professional</span>
-                        <span className="text-slate-400 font-normal text-[8px] mt-0.5">Formal business formatting</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAiEnhance('polite')}
-                        className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
-                      >
-                        <span>🤝 Friendly & Polite</span>
-                        <span className="text-slate-400 font-normal text-[8px] mt-0.5">Adds warmth & emojis</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAiEnhance('crisp')}
-                        className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
-                      >
-                        <span>⚡ Short & Crisp</span>
-                        <span className="text-slate-400 font-normal text-[8px] mt-0.5">Shortens to the point</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleAiEnhance('schedule')}
-                        className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
-                      >
-                        <span>📅 Booking Follow-up</span>
-                        <span className="text-slate-400 font-normal text-[8px] mt-0.5">Drafts schedule checklist</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
+                        <div className="flex items-center gap-1.5 px-1 pb-1 border-b border-slate-100">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                          <h5 className="text-[10px] font-black text-slate-700 uppercase tracking-wider">AI Tone Rewriter</h5>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleAiEnhance('professional')}
+                            className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
+                          >
+                            <span>✨ Professional</span>
+                            <span className="text-slate-400 font-normal text-[8px] mt-0.5">Formal business formatting</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAiEnhance('polite')}
+                            className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
+                          >
+                            <span>🤝 Friendly & Polite</span>
+                            <span className="text-slate-400 font-normal text-[8px] mt-0.5">Adds warmth & emojis</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAiEnhance('crisp')}
+                            className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
+                          >
+                            <span>⚡ Short & Crisp</span>
+                            <span className="text-slate-400 font-normal text-[8px] mt-0.5">Shortens to the point</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleAiEnhance('schedule')}
+                            className="w-full text-left px-2 py-1 transition rounded-lg hover:bg-slate-50 text-[10px] text-slate-700 font-bold flex flex-col"
+                          >
+                            <span>📅 Booking Follow-up</span>
+                            <span className="text-slate-400 font-normal text-[8px] mt-0.5">Drafts schedule checklist</span>
+                          </button>
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
               </div>
               
               <button 
