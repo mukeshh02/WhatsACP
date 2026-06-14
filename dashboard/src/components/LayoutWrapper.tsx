@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { 
   Home, 
   MessageSquare, 
@@ -22,9 +23,41 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Public paths that do not show sidebar or header
-  const isPublicPage = pathname === '/' || pathname === '/login' || pathname === '/register';
+  const isPublicPage = pathname === '/' || pathname === '/login' || pathname === '/register' || pathname === '/features' || pathname === '/pricing' || pathname === '/docs';
+
+  useEffect(() => {
+    if (isPublicPage) return;
+
+    const fetchUser = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+    fetchUser();
+  }, [pathname, isPublicPage]);
+
+  const getInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const parts = user.user_metadata.full_name.split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return 'AC';
+  };
 
   const handleLogout = async () => {
     try {
@@ -164,14 +197,71 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             </div>
             
             {/* Profile Initials & Settings */}
-            <div className="flex items-center gap-4 text-slate-500">
+            <div className="flex items-center gap-4 text-slate-500 relative">
               <button className="hover:text-slate-800"><Settings className="w-4.5 h-4.5" /></button>
               <span className="bg-gradient-to-r from-indigo-500 to-cyan-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm select-none">
                 Pro
               </span>
-              <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shadow-inner select-none cursor-pointer">
-                AC
-              </div>
+              
+              {/* User Avatar button */}
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="relative focus:outline-none cursor-pointer flex-shrink-0"
+              >
+                {user?.user_metadata?.avatar_url ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt={user.user_metadata.full_name || "User Avatar"} 
+                    className="w-8 h-8 rounded-full shadow-inner select-none object-cover border border-slate-200"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-[10px] shadow-inner select-none">
+                    {getInitials()}
+                  </div>
+                )}
+              </button>
+
+              {/* Profile Dropdown */}
+              {dropdownOpen && (
+                <>
+                  {/* Click outside backdrop */}
+                  <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)}></div>
+                  
+                  <div className="absolute right-0 top-10 w-64 bg-white border border-slate-100 rounded-2xl shadow-xl py-3 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left font-sans">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                      {user?.user_metadata?.avatar_url ? (
+                        <img 
+                          src={user.user_metadata.avatar_url} 
+                          alt="Avatar" 
+                          className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm">
+                          {getInitials()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-slate-800 truncate">{user?.user_metadata?.full_name || "User"}</p>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{user?.email || "loading..."}</p>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <button 
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </header>
           

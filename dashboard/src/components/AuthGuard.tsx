@@ -12,27 +12,24 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // 1. Check Supabase session
+      // Check Supabase session exclusively (no local storage mock bypass)
       let session = null;
       try {
         const { data } = await supabase.auth.getSession();
         session = data?.session;
       } catch (err) {
-        // Safe catch if supabase URL is a placeholder or has issue
+        console.error("Auth session check failed:", err);
       }
-      
-      // 2. Check Local Storage fallback session
-      const localSession = typeof window !== 'undefined' ? localStorage.getItem('whatsacp_session') : null;
 
-      if (!session && !localSession) {
-        // Redirect to login if unauthenticated and not on public pages
+      if (!session) {
+        // Redirect to login if unauthenticated and trying to access private dashboard pages
         if (pathname !== '/' && pathname !== '/login' && pathname !== '/register') {
           router.replace('/login');
         } else {
           setLoading(false);
         }
       } else {
-        // Authenticated! Redirect to dashboard if trying to access public landing or login/register pages
+        // Authenticated! Redirect to overview dashboard if trying to access landing page, login, or register
         if (pathname === '/' || pathname === '/login' || pathname === '/register') {
           router.replace('/overview');
         } else {
