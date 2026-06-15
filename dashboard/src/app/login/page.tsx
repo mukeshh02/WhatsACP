@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
-import { MessageSquare, Loader2, ArrowRight } from "lucide-react";
+import { MessageSquare, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -21,6 +21,10 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
+      if (process.env.NEXT_PUBLIC_SUPABASE_URL?.includes("placeholder")) {
+        throw new Error("Supabase is using placeholder URL, Google Sign-In is unavailable.");
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -40,7 +44,7 @@ export default function LoginPage() {
     <div className="min-h-screen w-full bg-[#0b0f19] text-slate-100 font-sans flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-emerald-500/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/10 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Main glass card */}
       <div className="w-full max-w-md bg-white/[0.02] border border-white/10 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-500">
@@ -48,7 +52,7 @@ export default function LoginPage() {
         {/* Brand logo */}
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="flex items-center gap-2.5 mb-2 group">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-2.5 rounded-xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+            <div className="bg-gradient-to-br from-indigo-500 to-violet-600 text-white p-2.5 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               <MessageSquare className="w-6 h-6" />
             </div>
             <span className="font-extrabold text-2xl tracking-tight text-white">WhatsACP</span>

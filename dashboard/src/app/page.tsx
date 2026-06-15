@@ -27,6 +27,7 @@ import toast from 'react-hot-toast';
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeTab, setActiveTab] = useState<'chat' | 'kanban' | 'exporter'>('chat');
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({
     0: true,
@@ -41,12 +42,6 @@ export default function LandingPage() {
   const [polisherTone, setPolisherTone] = useState<'professional' | 'polite' | 'crisp'>('professional');
   const [polisherOutput, setPolisherOutput] = useState("");
   const [isPolishing, setIsPolishing] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    handlePolish("ok price address pathao payment done", "professional");
-  }, []);
-
   const handlePolish = (text: string, tone: 'professional' | 'polite' | 'crisp') => {
     setIsPolishing(true);
     setTimeout(() => {
@@ -80,6 +75,37 @@ export default function LandingPage() {
     handlePolish(text, tone);
   };
 
+  useEffect(() => {
+    setMounted(true);
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      setTheme('light');
+      document.documentElement.classList.remove('dark');
+    }
+    handlePolish("ok price address pathao payment done", "professional");
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    if (nextTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
   const toggleFaq = (index: number) => {
     setFaqOpen(prev => ({
       ...prev,
@@ -94,7 +120,7 @@ export default function LandingPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen w-full bg-[#0b0f19] text-slate-100 font-sans selection:bg-emerald-500 selection:text-white flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen w-full bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-500 selection:text-white flex flex-col relative overflow-x-hidden transition-colors duration-300">
       
       {/* Background gradients container to clip bottom overflows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -125,7 +151,24 @@ export default function LandingPage() {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">
+          <button 
+            type="button"
+            onClick={toggleTheme}
+            className="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1shnua"
+            aria-label="Toggle theme"
+          >
+            <svg className="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-vubbuv" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="Brightness4Icon">
+              {theme === 'dark' ? (
+                // Sun icon
+                <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41zm-12.37 12.37c-.39-.39-1.02-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.38.39-1.02 0-1.41z"/>
+              ) : (
+                // Moon icon
+                <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
+              )}
+            </svg>
+            <span className="MuiTouchRipple-root css-4mb1j7"></span>
+          </button>
+          <Link href="/login" className="text-sm font-semibold text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
             Sign In
           </Link>
           <Link href="/register" className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/15 hover:shadow-emerald-500/20 transition-all hover:-translate-y-0.5">

@@ -3,6 +3,7 @@ import { Roboto, Outfit } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { Toaster } from "react-hot-toast";
+import PageLoader from "@/components/PageLoader";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -26,8 +27,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.variable} ${outfit.variable} antialiased`}>
-      <body className="bg-[#f8fafc] text-gray-900 font-sans min-h-screen">
+    <html lang="en" className={`${roboto.variable} ${outfit.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `
+          }}
+        />
+      </head>
+      <body className="bg-background text-foreground font-sans min-h-screen transition-colors duration-200">
+        <PageLoader />
         <Toaster position="top-center" />
         <LayoutWrapper>
           {children}

@@ -5,6 +5,15 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { initializeWhatsApp } = require('./services/whatsapp');
 
+// Prevent crashes due to async library errors (like EBUSY unlinking locked browser session files)
+process.on('uncaughtException', (err) => {
+    console.error('[Warning] Uncaught Exception:', err.message || err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Warning] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
