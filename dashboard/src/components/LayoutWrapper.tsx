@@ -37,6 +37,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     role: "Administrator"
   });
 
+  const [user, setUser] = useState<any>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   // Local state for editing settings
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -59,6 +62,20 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       document.documentElement.classList.add('dark');
     }
   }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data?.user) {
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+    fetchUser();
+  }, [pathname]);
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('whatsacp_session');
@@ -389,13 +406,75 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
               </button>
 
 
-              <div 
-                onClick={() => setSettingsOpen(true)}
-                className="w-8 h-8 rounded-full bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-xs shadow-inner select-none cursor-pointer hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
-                title={`${profile.name} (${profile.role})`}
+              {/* User Avatar button */}
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="relative focus:outline-none cursor-pointer flex-shrink-0"
               >
-                {getInitials(profile.name)}
-              </div>
+                {user?.user_metadata?.avatar_url ? (
+                  <img 
+                    src={user.user_metadata.avatar_url} 
+                    alt={user.user_metadata.full_name || "User Avatar"} 
+                    className="w-8 h-8 rounded-full shadow-inner select-none object-cover border border-slate-200"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-[10px] shadow-inner select-none">
+                    {getInitials(user?.user_metadata?.full_name || profile.name)}
+                  </div>
+                )}
+              </button>
+
+              {/* Profile Dropdown */}
+              {dropdownOpen && (
+                <>
+                  {/* Click outside backdrop */}
+                  <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)}></div>
+                  
+                  <div className="absolute right-0 top-10 w-64 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-xl py-3 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 text-left font-sans">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                      {user?.user_metadata?.avatar_url ? (
+                        <img 
+                          src={user.user_metadata.avatar_url} 
+                          alt="Avatar" 
+                          className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-sm">
+                          {getInitials(user?.user_metadata?.full_name || profile.name)}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{user?.user_metadata?.full_name || profile.name}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-0.5">{user?.email || profile.email}</p>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <button 
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          setSettingsOpen(true);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors text-left cursor-pointer"
+                      >
+                        <Settings className="w-4 h-4" />
+                        System Settings
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors text-left cursor-pointer mt-1"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </header>
           

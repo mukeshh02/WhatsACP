@@ -261,6 +261,7 @@ export default function ChatPage() {
 
   // Sync details when active project changes
   useEffect(() => {
+    toast.dismiss(); // Dismiss any loading/stuck toasts on chat change
     if (activeProject) {
       const jid = activeProject.whatsapp_group_id;
 
@@ -333,10 +334,12 @@ export default function ChatPage() {
 
     socketClient.on("disconnect", () => {
       setConnected(false);
+      toast.dismiss(); // Dismiss any stuck loading toasts on disconnect
     });
 
     socketClient.on("connect_error", () => {
       setConnected(false);
+      toast.dismiss(); // Dismiss any stuck loading toasts on connection error
       fetchProjectsFallback();
     });
 
@@ -381,6 +384,11 @@ export default function ChatPage() {
 
     // Handle historical messages response
     socketClient.on("chat_messages_response", (data: { chatId: string; messages: Message[]; error?: string }) => {
+      toast.dismiss(); // Dismiss "Fetching messages..." loading toast
+      if (data.error) {
+        toast.error(`Error loading messages: ${data.error}`);
+        return;
+      }
       if (activeProjectRef.current && data.chatId === activeProjectRef.current.whatsapp_group_id) {
         setMessages(data.messages || []);
         if (data.messages && data.messages.length > 0) {
@@ -1181,7 +1189,7 @@ export default function ChatPage() {
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 shrink-0 text-sm">
-                        {project.group_name.slice(0, 1).toUpperCase()}
+                        {project.group_name.replace(/^\+/, '').trim().slice(0, 1).toUpperCase() || "+"}
                       </div>
                     )}
 
@@ -1256,7 +1264,7 @@ export default function ChatPage() {
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-600 dark:text-slate-400 text-sm shrink-0">
-                    {activeProject.group_name.slice(0, 1).toUpperCase()}
+                    {activeProject.group_name.replace(/^\+/, '').trim().slice(0, 1).toUpperCase() || "+"}
                   </div>
                 )}
                 <div>
@@ -1278,9 +1286,7 @@ export default function ChatPage() {
                     ) : (
                       onlineStatus[activeProject.whatsapp_group_id]?.isOnline ? (
                         <span className="text-emerald-600 dark:text-emerald-400 font-semibold">online</span>
-                      ) : (
-                        `+${activeProject.whatsapp_group_id.split('@')[0]}`
-                      )
+                      ) : null
                     )}
                   </p>
                 </div>
@@ -1797,7 +1803,7 @@ export default function ChatPage() {
               />
             ) : (
               <div className="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-xl shadow-sm mb-3">
-                {activeProject.group_name.slice(0, 1).toUpperCase()}
+                {activeProject.group_name.replace(/^\+/, '').trim().slice(0, 1).toUpperCase() || "+"}
               </div>
             )}
             <h4 className="font-bold text-slate-800 text-xs max-w-[200px] truncate">{activeProject.group_name}</h4>
