@@ -11,9 +11,8 @@ export default function WhatsAppConnect() {
   const socketRef = useRef<any>(null);
 
   useEffect(() => {
-    // Use window.location.hostname to avoid localhost vs 127.0.0.1 issues
-    const socketUrl = `http://${window.location.hostname}:3001`;
-    const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
+    const savedUrl = localStorage.getItem('whatsacp_backend_url') || `http://${window.location.hostname}:3001`;
+    const socket = io(savedUrl, { transports: ['websocket', 'polling'] });
     socketRef.current = socket;
 
     socket.on('connect', () => {

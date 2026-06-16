@@ -321,8 +321,8 @@ export default function ChatPage() {
 
   // Setup WebSocket connection
   useEffect(() => {
-    const socketUrl = `http://${window.location.hostname}:3001`;
-    const socketClient = io(socketUrl, { transports: ['websocket', 'polling'] });
+    const savedUrl = localStorage.getItem('whatsacp_backend_url') || `http://${window.location.hostname}:3001`;
+    const socketClient = io(savedUrl, { transports: ['websocket', 'polling'] });
 
     socketClient.on("connect", () => {
       setConnected(true);
