@@ -7,6 +7,7 @@ echo =======================================================
 echo.
 echo Starting Node.js Server... Please wait for the QR Code...
 echo.
-del /F /Q "%~dp0.wwebjs_auth\session\SingletonLock" 2>nul
+del /F /Q "%~dp0backend\.wwebjs_auth\session\SingletonLock" 2>nul
+cd backend
 node server.js
 pause
