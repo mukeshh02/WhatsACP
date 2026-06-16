@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
-const { initializeWhatsApp } = require('./services/whatsapp');
+const { initializeWhatsApp, getCurrentStatus } = require('./services/whatsapp');
 
 // Prevent crashes due to async library errors (like EBUSY unlinking locked browser session files)
 process.on('uncaughtException', (err) => {
@@ -32,6 +32,10 @@ initializeWhatsApp(io);
 
 app.get('/', (req, res) => {
     res.send('WhatsACP CRM Backend is running! WebSockets enabled.');
+});
+
+app.get('/api/status', (req, res) => {
+    res.json({ status: getCurrentStatus() });
 });
 
 server.listen(PORT, () => {

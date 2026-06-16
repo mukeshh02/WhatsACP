@@ -600,4 +600,8 @@ function extractDateFallback(text) {
     return match ? match[0] : null;
 }
 
-module.exports = { initializeWhatsApp };
+function getCurrentStatus() {
+    return currentStatus;
+}
+
+module.exports = { initializeWhatsApp, getCurrentStatus };
